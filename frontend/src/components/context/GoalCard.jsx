@@ -1,25 +1,17 @@
-function GoalCard() {
+function GoalCard({ goal }) {
+  return (
+    <div className="border rounded-xl p-4">
 
-    return (
+      <h3 className="font-semibold">
+        Current Goal
+      </h3>
 
-        <div className="border rounded-xl p-4">
+      <p className="mt-2">
+        {goal}
+      </p>
 
-            <h3 className="font-semibold">
-
-                Current Goal
-
-            </h3>
-
-            <p className="mt-2">
-
-                Increase Savings
-
-            </p>
-
-        </div>
-
-    );
-
+    </div>
+  );
 }
 
 export default GoalCard;

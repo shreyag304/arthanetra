@@ -1,25 +1,17 @@
-function PersonaCard() {
+function PersonaCard({ persona }) {
+  return (
+    <div className="border rounded-xl p-4 mb-4">
 
-    return (
+      <h3 className="font-semibold">
+        Persona
+      </h3>
 
-        <div className="border rounded-xl p-4 mb-4">
+      <p className="mt-2">
+        {persona}
+      </p>
 
-            <h3 className="font-semibold">
-
-                Persona
-
-            </h3>
-
-            <p className="mt-2">
-
-                Student
-
-            </p>
-
-        </div>
-
-    );
-
+    </div>
+  );
 }
 
 export default PersonaCard;

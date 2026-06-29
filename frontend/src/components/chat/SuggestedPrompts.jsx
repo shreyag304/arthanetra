@@ -1,4 +1,4 @@
-function SuggestedPrompts() {
+function SuggestedPrompts({ onPromptClick })  {
 
     const prompts = [
 
@@ -19,15 +19,17 @@ function SuggestedPrompts() {
             <div className="flex flex-wrap gap-3">
 
                 {prompts.map((prompt) => (
+                    
+    <button
+       key={prompt}
+       onClick={() => onPromptClick(prompt)}
+       className="rounded-full border px-4 py-2 text-sm hover:bg-blue-50 hover:border-blue-500 transition"
+   >
 
-                    <button
-                        key={prompt}
-                        className="rounded-full border px-4 py-2 text-sm hover:bg-blue-50 hover:border-blue-500 transition"
-                    >
-                        {prompt}
-                    </button>
 
-                ))}
+        {prompt}
+    </button>
+))}
 
             </div>
 

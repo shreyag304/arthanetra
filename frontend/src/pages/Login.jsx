@@ -1,15 +1,22 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
+import LanguageSelector from "../components/chat/LanguageSelector";
 function Login() {
 
     const navigate = useNavigate();
+    const [language, setLanguage] = useState(
+  localStorage.getItem("language") || "English"
+);
 
     function handleLogin() {
 
         // Temporary login
-        navigate("/workspace");
+         localStorage.setItem("language", language);
 
+        navigate("/workspace");
+       
     }
+   
 
     return (
 
@@ -28,6 +35,18 @@ function Login() {
                     AI Financial Assistant for Everyone
 
                 </p>
+                <div className="mt-6">
+  <label className="font-medium">
+    Select Language
+  </label>
+
+  <div className="mt-2">
+    <LanguageSelector
+      language={language}
+      setLanguage={setLanguage}
+    />
+  </div>
+</div>
 
                 <div className="mt-10">
 

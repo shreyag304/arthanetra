@@ -1,25 +1,21 @@
-function SchemeCard() {
+function SchemeCard({ schemes }) {
+  return (
+    <div className="border rounded-xl p-4 mb-4">
 
-    return (
+      <h3 className="font-semibold">
+        Eligible Schemes
+      </h3>
 
-        <div className="border rounded-xl p-4 mb-4">
+      <ul className="mt-2 list-disc list-inside">
+        {schemes.map((scheme) => (
+          <li key={scheme}>
+            {scheme}
+          </li>
+        ))}
+      </ul>
 
-            <h3 className="font-semibold">
-
-                Eligible Schemes
-
-            </h3>
-
-            <ul className="mt-2 list-disc list-inside">
-
-                <li>PM-KISAN</li>
-
-            </ul>
-
-        </div>
-
-    );
-
+    </div>
+  );
 }
 
 export default SchemeCard;

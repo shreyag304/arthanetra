@@ -3,30 +3,32 @@ import PersonaCard from "./PersonaCard";
 import SchemeCard from "./SchemeCard";
 import GoalCard from "./GoalCard";
 
-function ContextPanel() {
+function ContextPanel({ context }) {
+  return (
+    <div className="h-full bg-white p-6 overflow-y-auto">
 
-    return (
+      <h2 className="text-xl font-bold mb-6">
+        Live AI Context
+      </h2>
 
-        <div className="h-full bg-white p-6 overflow-y-auto">
+      <HealthScore
+        score={context.financial_health_score}
+      />
 
-            <h2 className="text-xl font-bold mb-6">
+      <PersonaCard
+        persona={context.persona}
+      />
 
-                Live AI Context
+      <SchemeCard
+        schemes={context.eligible_schemes}
+      />
 
-            </h2>
+      <GoalCard
+        goal={context.goal}
+      />
 
-            <HealthScore />
-
-            <PersonaCard />
-
-            <SchemeCard />
-
-            <GoalCard />
-
-        </div>
-
-    );
-
+    </div>
+  );
 }
 
 export default ContextPanel;

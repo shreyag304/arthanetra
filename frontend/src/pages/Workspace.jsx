@@ -3,7 +3,29 @@ import ContextPanel from "../components/context/ContextPanel";
 import SuggestedPrompts from "../components/chat/SuggestedPrompts";
 import ChatInput from "../components/chat/ChatInput";
 
+import { useState } from "react";
+
 function Workspace() {
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: "assistant",
+      text: "Hello! I'm ArthaNetra. How can I help you today?",
+    },
+  ]);
+
+  const [context, setContext] = useState({
+    financial_health_score: 72,
+    persona: "Student",
+    income_type: "Student",
+    language: "English",
+    goal: "Increase Savings",
+    eligible_schemes: ["PM-KISAN"],
+  });
+
+  const language =
+  localStorage.getItem("language") || "English";
+
   return (
     <div className="min-h-screen bg-slate-100">
 
@@ -21,18 +43,27 @@ function Workspace() {
         <div className="col-span-8 flex flex-col border-r">
 
           <div className="flex-1 overflow-y-auto">
-            <ChatWindow />
+            <ChatWindow messages={messages} />
           </div>
 
-          <SuggestedPrompts />
+          <SuggestedPrompts
+            onPromptClick={(prompt) => {
+              console.log(prompt);
+            }}
+          />
 
-          <ChatInput />
+          <ChatInput
+            messages={messages}
+            setMessages={setMessages}
+            setContext={setContext}
+            language={language}
+          />
 
         </div>
 
         {/* Context Panel */}
         <div className="col-span-4 bg-white">
-          <ContextPanel />
+          <ContextPanel context={context} />
         </div>
 
       </div>
