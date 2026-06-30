@@ -1,0 +1,26 @@
+# API Reference
+
+This document provides a centralized reference for all API routes across the backend and frontend codebases, mapped and reconciled according to the `api-mapper` specification.
+
+## Mapped Routes
+
+| Method | Endpoint | Source (FE/BE/Both) | Payload/Params | Response | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `POST` | `/auth/login` | Both | **Body (`LoginRequest`):**<br>• `mobile` (string, 10 chars)<br>• `password` (string) | **`LoginResponse` (200 OK):**<br>• `message` (string)<br>• `user_id` (int)<br>• `name` (string)<br>• `mobile` (string)<br><br>**Errors:**<br>• `404 Not Found`<br>• `401 Unauthorized` | Authenticates a user using their 10-digit mobile number and password. Integrated with frontend client (`auth.js`). |
+| `GET` | `/auth/register` | Both | **Query Params:**<br>• `mobile` (string, 10 chars) | **`CheckRegistrationResponse` (200 OK):**<br>• `mobile` (string)<br>• `is_registered` (bool)<br>• `available` (bool)<br>• `message` (string)<br><br>**Errors:**<br>• `422 Validation Error` | Checks whether a mobile number is already registered or available for signup. Integrated with frontend client (`checkRegistration` in `auth.js`). |
+| `POST` | `/auth/register` | Both | **Body (`RegisterRequest`):**<br>• `mobile` (string, 10 chars)<br>• `password` (string)<br>• `name` (string, default "User")<br>• `email` (string, optional) | **`RegisterResponse` (200 OK):**<br>• `message` (string)<br>• `user_id` (int)<br>• `name` (string)<br>• `mobile` (string)<br><br>**Errors:**<br>• `400 Bad Request`<br>• `500 Internal Server Error` | Registers a new user with rollback support on error. Integrated with frontend client (`register` in `auth.js`). |
+
+---
+
+## Reconcile & Integration Status
+
+1. **`/auth/login` (Reconciled - Fully Integrated)**
+   - **Backend Definition:** [routes/auth.py](file:///home/abhijay/python/arthanetra/Backend/routes/auth.py#L43-L54) defines `POST /auth/login` accepting `LoginRequest` (`mobile`, `password`).
+   - **Frontend Interaction:** [frontend/src/api/auth.js](file:///home/abhijay/python/arthanetra/frontend/src/api/auth.js#L3-L16) calls `client.post("/auth/login", { mobile, password })`.
+   - **Status:** Payloads match exactly.
+
+2. **`/auth/register` (Reconciled - Fully Integrated)**
+   - **Backend Definition:** [routes/auth.py](file:///home/abhijay/python/arthanetra/Backend/routes/auth.py#L57-L99) defines `GET /auth/register` (status check) and `POST /auth/register` (user registration).
+   - **Frontend Interaction:** [frontend/src/api/auth.js](file:///home/abhijay/python/arthanetra/frontend/src/api/auth.js#L18-L58) exports `checkRegistration(mobile)` calling `GET /auth/register?mobile=...` and `register(mobile, password, name, email)` calling `POST /auth/register`.
+   - **Status:** Payloads and models reconciled against `models.User` (`mobile`, `password`, `name`). DB error handling wrapped in `try/except` with explicit `db.rollback()`.
+

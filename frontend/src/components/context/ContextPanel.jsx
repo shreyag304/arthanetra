@@ -2,31 +2,48 @@ import HealthScore from "./HealthScore";
 import PersonaCard from "./PersonaCard";
 import SchemeCard from "./SchemeCard";
 import GoalCard from "./GoalCard";
+import { FiBarChart2, FiShield } from "react-icons/fi";
 
-function ContextPanel({ context }) {
+function ContextPanel({ context = {} }) {
   return (
-    <div className="h-full bg-white p-6 overflow-y-auto">
+    <div className="h-full bg-slate-900/85 backdrop-blur-2xl border-l border-slate-800/80 p-5 sm:p-6 overflow-y-auto flex flex-col justify-between scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+      <div>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800/80">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+              <FiBarChart2 className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white tracking-tight">
+                Live AI Telemetry
+              </h2>
+              <p className="text-[11px] text-slate-400">Real-time user intelligence</p>
+            </div>
+          </div>
+          <span className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Syncing
+          </span>
+        </div>
 
-      <h2 className="text-xl font-bold mb-6">
-        Live AI Context
-      </h2>
+        {/* Cards Stack */}
+        <div className="space-y-4">
+          <HealthScore score={context.financial_health_score} />
+          <PersonaCard persona={context.persona} />
+          <SchemeCard schemes={context.eligible_schemes || []} />
+          <GoalCard goal={context.goal} />
+        </div>
+      </div>
 
-      <HealthScore
-        score={context.financial_health_score}
-      />
-
-      <PersonaCard
-        persona={context.persona}
-      />
-
-      <SchemeCard
-        schemes={context.eligible_schemes}
-      />
-
-      <GoalCard
-        goal={context.goal}
-      />
-
+      {/* Footer Info */}
+      <div className="mt-8 pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+        <span className="flex items-center gap-1">
+          <FiShield className="text-blue-400" />
+          End-to-End Secure
+        </span>
+        <span>ArthaNetra Core v2.4</span>
+      </div>
     </div>
   );
 }
