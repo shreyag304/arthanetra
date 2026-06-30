@@ -1,0 +1,39 @@
+# Environments & Secrets
+.venv/
+venv/
+*.env
+.env
+.env.*
+
+# Database Docker Volume Data
+Backend/dbmodel/data/
+data/
+
+# Node & Build Outputs
+node_modules/
+dist/
+dist-ssr/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+logs
+npm-debug.log*
+*.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
