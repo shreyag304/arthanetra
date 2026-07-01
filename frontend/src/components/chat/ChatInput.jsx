@@ -1,14 +1,14 @@
 import { useState } from "react";
 import VoiceButton from "./VoiceButton";
-import { sendMessage } from "../../mocks/chatMock";
-import { FiSend, FiLoader } from "react-icons/fi";
+import { sendMessage, chatSocket } from "../../api/chat";
+import { FiSend, FiLoader, FiRadio } from "react-icons/fi";
 
 function ChatInput({
-  messages,
   setMessages,
   setContext,
   language,
   onSendExternal,
+  connectionStatus = "connected",
 }) {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -43,14 +43,23 @@ function ChatInput({
     setIsSending(true);
 
     try {
-      console.log(payload);
       const response = await sendMessage(payload);
-      setContext(response.context);
+      if (response?.context && setContext) {
+        setContext(response.context);
+      }
+
+      const replyText =
+        response?.reply ||
+        response?.message ||
+        response?.text ||
+        (typeof response === "string"
+          ? response
+          : "Received response from ArthaNetra AI.");
 
       const assistantMessage = {
         id: Date.now() + 1,
         sender: "assistant",
-        text: response.reply,
+        text: replyText,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -60,7 +69,9 @@ function ChatInput({
         {
           id: Date.now() + 1,
           sender: "assistant",
-          text: "Something went wrong while connecting to ArthaNetra AI core.",
+          text:
+            error?.message ||
+            "Something went wrong while connecting to ArthaNetra AI core.",
         },
       ]);
     } finally {
@@ -75,13 +86,15 @@ function ChatInput({
     Gujarati: "નાણાકીય આરોગ્ય, લોન અથવા યોજનાઓ વિશે કંઈપણ પૂછો...",
     Tamil: "நிதி நிலை, கடன்கள் அல்லது திட்டங்கள் குறித்து எதுவும் கேளுங்கள்...",
     Telugu: "ఆర్థిక ఆరోగ్యం, రుణాలు లేదా పథకాల గురించి ఏదైనా అడగండి...",
-    Kannada: "ಆರ್ಥಿಕ ಆರೋಗ್ಯ, ಸಾಲಗಳು ಅಥವಾ ಯೋಜನೆಗಳ ಬಗ್ಗೆ ಏನಾದರೂ ಕೇಳಿ...",
+    Kannada: "ಆರ್ಥಿಕ ಆರೋಗ್ಯ, ಸಾಲಗಳು અથવા ಯೋಜನೆಗಳ ಬಗ್ಗೆ ಏನಾದರೂ ಕೇಳಿ...",
     Malayalam: "സാമ്പത്തിക ആരോഗ്യം, വായ്പകൾ എന്നിവയെക്കുറിച്ച് ചോദിക്കൂ...",
     Bengali: "আর্থিক স্বাস্থ্য, ঋণ বা সরকারি প্রকল্প সম্পর্কে জিজ্ঞাসা করুন...",
     Punjabi: "ਵਿੱਤੀ ਸਿਹਤ, ਕਰਜ਼ੇ ਜਾਂ ਸਕੀਮਾਂ ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛੋ...",
     Odia: "ଆର୍ଥିକ ସ୍ୱାସ୍ଥ୍ୟ, ଋଣ କିମ୍ବା ଯୋଜନା ବିଷୟରେ ପଚାରନ୍ତୁ...",
     Assamese: "বিত্তীয় স্বাস্থ্য, ঋণ বা আঁচনিৰ বিষয়ে যিকোনো কথা সোধক...",
   };
+
+  const isWsConnected = connectionStatus === "connected" || chatSocket.status === "connected";
 
   return (
     <div className="border-t border-slate-800/80 bg-slate-900/90 backdrop-blur-xl p-4 sm:p-5">
@@ -132,11 +145,15 @@ function ChatInput({
       {/* Subtext info */}
       <div className="flex items-center justify-between max-w-5xl mx-auto mt-2.5 px-1 text-[11px] text-slate-400">
         <span className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-ping"></span>
-          ArthaNetra AI • Financial Intelligence Core
+          <span
+            className={`w-1.5 h-1.5 rounded-full inline-block ${
+              isWsConnected ? "bg-emerald-400 animate-ping" : "bg-amber-400"
+            }`}
+          ></span>
+          ArthaNetra AI • {isWsConnected ? "WebSocket Core Live" : "HTTP Core Active"}
         </span>
         <span className="hidden md:inline">
-          Press Enter to send • 256-bit encrypted conversation
+          Press Enter to send • 256-bit encrypted telemetry
         </span>
       </div>
     </div>

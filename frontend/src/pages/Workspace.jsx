@@ -4,12 +4,14 @@ import SuggestedPrompts from "../components/chat/SuggestedPrompts";
 import ChatInput from "../components/chat/ChatInput";
 import Logo from "../components/shared/Logo";
 import LanguageSelector from "../components/chat/LanguageSelector";
-import { sendMessage } from "../mocks/chatMock";
-
-import { useState } from "react";
-import { FiRefreshCw, FiShield } from "react-icons/fi";
+import { sendMessage, chatSocket } from "../api/chat";
+import { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { FiRefreshCw } from "react-icons/fi";
 
 function Workspace() {
+  const { user } = useContext(AuthContext);
+
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -31,6 +33,34 @@ function Workspace() {
     localStorage.getItem("language") || "English"
   );
   const [isSending, setIsSending] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState(chatSocket.status);
+
+  useEffect(() => {
+    chatSocket.connect();
+
+    const handleStatus = (status) => setConnectionStatus(status);
+    const handleContextUpdate = (newContext) => {
+      setContext((prev) => ({ ...prev, ...newContext }));
+    };
+    const handleWsMessage = (data) => {
+      if (data && (data.type === "alert" || data.type === "push_message")) {
+        setMessages((prev) => [
+          ...prev,
+          { id: Date.now(), sender: "assistant", text: data.message || data.text },
+        ]);
+      }
+    };
+
+    chatSocket.on("status_change", handleStatus);
+    chatSocket.on("context_update", handleContextUpdate);
+    chatSocket.on("message", handleWsMessage);
+
+    return () => {
+      chatSocket.off("status_change", handleStatus);
+      chatSocket.off("context_update", handleContextUpdate);
+      chatSocket.off("message", handleWsMessage);
+    };
+  }, []);
 
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
@@ -58,13 +88,23 @@ function Workspace() {
     try {
       const response = await sendMessage({
         message: text,
+        user_id: user?.user_id || null,
         conversation_id: "demo-user",
         language,
       });
-      setContext(response.context);
+      if (response?.context) {
+        setContext(response.context);
+      }
+      const replyText =
+        response?.reply ||
+        response?.message ||
+        response?.text ||
+        (typeof response === "string"
+          ? response
+          : "Received response from ArthaNetra AI.");
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, sender: "assistant", text: response.reply },
+        { id: Date.now() + 1, sender: "assistant", text: replyText },
       ]);
     } catch (e) {
       setMessages((prev) => [
@@ -72,7 +112,9 @@ function Workspace() {
         {
           id: Date.now() + 1,
           sender: "assistant",
-          text: "Unable to reach ArthaNetra AI core. Please try again.",
+          text:
+            e?.message ||
+            "Unable to reach ArthaNetra AI core. Please try again.",
         },
       ]);
     } finally {
@@ -91,8 +133,22 @@ function Workspace() {
         <div className="flex items-center gap-4">
           <Logo className="text-xl sm:text-2xl" />
           <div className="hidden md:flex items-center gap-2 bg-slate-800/80 border border-slate-700/60 px-3 py-1 rounded-full text-[11px] text-slate-300">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>AI Eye Active • 14ms</span>
+            <span
+              className={`w-2 h-2 rounded-full ${
+                connectionStatus === "connected"
+                  ? "bg-emerald-400 animate-ping"
+                  : connectionStatus === "connecting"
+                  ? "bg-amber-400 animate-pulse"
+                  : "bg-blue-400"
+              }`}
+            ></span>
+            <span>
+              {connectionStatus === "connected"
+                ? "AI Eye Active • WS Realtime"
+                : connectionStatus === "connecting"
+                ? "Connecting WS Stream..."
+                : "AI Eye Active • HTTP Fallback"}
+            </span>
           </div>
         </div>
 
@@ -118,7 +174,11 @@ function Workspace() {
         {/* Chat Console Section */}
         <div className="col-span-1 lg:col-span-8 flex flex-col border-r border-slate-800/80 bg-slate-950/40 backdrop-blur-md h-full overflow-hidden">
           {/* Messages Window */}
-          <ChatWindow messages={messages} isSending={isSending} />
+          <ChatWindow
+            messages={messages}
+            isSending={isSending}
+            connectionStatus={connectionStatus}
+          />
 
           {/* Suggested Inquiries */}
           <SuggestedPrompts onPromptClick={handleSendPrompt} />
@@ -130,12 +190,17 @@ function Workspace() {
             setContext={setContext}
             language={language}
             onSendExternal={handleSendPrompt}
+            connectionStatus={connectionStatus}
           />
         </div>
 
         {/* Live AI Analytics & Context Sidebar */}
         <div className="col-span-1 lg:col-span-4 h-full overflow-hidden">
-          <ContextPanel context={context} />
+          <ContextPanel
+            context={context}
+            connectionStatus={connectionStatus}
+            onGoalClick={handleSendPrompt}
+          />
         </div>
       </div>
     </div>

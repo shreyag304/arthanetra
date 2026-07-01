@@ -1,6 +1,6 @@
 import { FiTarget, FiArrowRight } from "react-icons/fi";
 
-function GoalCard({ goal = "Increase Savings" }) {
+function GoalCard({ goal = "Increase Savings", onOptimize }) {
   return (
     <div className="bg-slate-800/60 hover:bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-md transition-all duration-300">
       <div className="flex items-center justify-between mb-3">
@@ -23,7 +23,10 @@ function GoalCard({ goal = "Increase Savings" }) {
 
       <div className="mt-2.5 bg-gradient-to-r from-slate-900 via-slate-900/90 to-pink-950/30 rounded-xl p-3.5 border border-pink-500/20 flex items-center justify-between">
         <span className="text-sm font-bold text-white tracking-wide">{goal}</span>
-        <button className="flex items-center gap-1 text-[11px] text-pink-400 hover:text-pink-300 font-semibold group/btn transition-colors">
+        <button
+          onClick={() => onOptimize && onOptimize(`Help me optimize and reach my financial goal: ${goal}`)}
+          className="flex items-center gap-1 text-[11px] text-pink-400 hover:text-pink-300 font-semibold group/btn transition-colors cursor-pointer"
+        >
           Optimize
           <FiArrowRight className="w-3 h-3 transform group-hover/btn:translate-x-0.5 transition-transform" />
         </button>

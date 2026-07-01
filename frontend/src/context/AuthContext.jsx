@@ -8,6 +8,7 @@ function AuthProvider({ children }) {
 
     const login = (userData) => {
         setUser(userData);
+        localStorage.setItem("user_id" , userData.id)
     };
 
     const logout = () => {
