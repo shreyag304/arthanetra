@@ -63,6 +63,7 @@ Simulated network layers for standalone frontend execution and UI testing.
 - [ContextPanel](./components/context/ContextPanel.md) — Live sidebar displaying user health scores, active personas, and financial goals.
 - [HealthScore](./components/context/HealthScore.md) — Visual circular gauge displaying the user's computed financial health (0–100).
 - [PersonaCard](./components/context/PersonaCard.md) — Profile card displaying user demographic and income categorization.
+- [ProfileModal](./components/context/ProfileModal.md) — Pop-up modal dialog for viewing and editing user occupation (persona), income structure, and primary financial goal.
 - [GoalCard](./components/context/GoalCard.md) — Active financial target tracking widget.
 - [SchemeCard](./components/context/SchemeCard.md) — Government financial welfare scheme recommendations matching user eligibility.
 

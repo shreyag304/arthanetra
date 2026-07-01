@@ -4,7 +4,7 @@ import SchemeCard from "./SchemeCard";
 import GoalCard from "./GoalCard";
 import { FiBarChart2, FiShield } from "react-icons/fi";
 
-function ContextPanel({ context = {}, connectionStatus = "connected", onGoalClick }) {
+function ContextPanel({ context = {}, connectionStatus = "connected", onGoalClick, userName, onEditProfile }) {
   const isWsConnected = connectionStatus === "connected";
   const isWsConnecting = connectionStatus === "connecting";
 
@@ -45,7 +45,12 @@ function ContextPanel({ context = {}, connectionStatus = "connected", onGoalClic
         {/* Cards Stack */}
         <div className="space-y-4">
           <HealthScore score={context.financial_health_score} />
-          <PersonaCard persona={context.persona} incomeType={context.income_type} />
+          <PersonaCard
+            userName={userName}
+            persona={context.persona}
+            incomeType={context.income_type}
+            onEditProfile={onEditProfile}
+          />
           <SchemeCard schemes={context.eligible_schemes || []} />
           <GoalCard goal={context.goal} onOptimize={onGoalClick} />
         </div>
