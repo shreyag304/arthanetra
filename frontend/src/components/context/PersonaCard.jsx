@@ -1,6 +1,6 @@
 import { FiUserCheck, FiShield } from "react-icons/fi";
 
-function PersonaCard({ persona = "Student" }) {
+function PersonaCard({ persona = "Student", incomeType = "Variable" }) {
   return (
     <div className="bg-slate-800/60 hover:bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 mb-4 shadow-md transition-all duration-300">
       <div className="flex items-center justify-between mb-2.5">
@@ -28,8 +28,8 @@ function PersonaCard({ persona = "Student" }) {
           <span className="text-base font-bold text-white tracking-wide">{persona}</span>
         </div>
         <div className="text-right">
-          <span className="text-[11px] text-slate-400 block">Risk Tier</span>
-          <span className="text-xs font-semibold text-emerald-400">Low Debt Risk</span>
+          <span className="text-[11px] text-slate-400 block">Income Type</span>
+          <span className="text-xs font-semibold text-purple-300">{incomeType || "Variable"}</span>
         </div>
       </div>
     </div>
