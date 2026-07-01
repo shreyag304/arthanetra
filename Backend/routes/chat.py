@@ -1,6 +1,9 @@
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from pydantic import BaseModel
+from sqlmodel import Session
+from dbmodel.Database import get_db
+from dbmodel.models import User
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 ws_router = APIRouter(tags=["chat-websocket"])
@@ -48,13 +51,18 @@ manager = ConnectionManager()
 
 
 @router.post("", response_model=ChatResponse)
-def handle_chat(payload: ChatRequest):
+def handle_chat(payload: ChatRequest, db: Session = Depends(get_db)):
     reply_text = f"ArthaNetra AI ({payload.language or 'English'}): I received your message '{payload.message}'."
+    
+    fhs_score = 75
     if payload.user_id:
         reply_text += f" Assisting User ID #{payload.user_id}."
+        user = db.get(User, payload.user_id)
+        if user and user.fhs_score is not None:
+            fhs_score = user.fhs_score
 
     default_context = {
-        "financial_health_score": 75,
+        "financial_health_score": fhs_score,
         "persona": "Standard User",
         "income_type": "Variable",
         "language": payload.language or "English",
@@ -73,7 +81,7 @@ def handle_chat(payload: ChatRequest):
     )
 
 
-async def process_chat_websocket(websocket: WebSocket):
+async def process_chat_websocket(websocket: WebSocket, db: Session):
     await manager.connect(websocket)
     try:
         while True:
@@ -93,12 +101,17 @@ async def process_chat_websocket(websocket: WebSocket):
                 continue
 
             reply_text = f"ArthaNetra AI ({payload.language or 'English'}): I received your message '{payload.message}'."
+            
+            fhs_score = 75
             if payload.user_id:
                 reply_text += f" Assisting User ID #{payload.user_id}."
+                user = db.get(User, payload.user_id)
+                if user and user.fhs_score is not None:
+                    fhs_score = user.fhs_score
 
             msg_lower = payload.message.lower()
             default_context = {
-                "financial_health_score": 75,
+                "financial_health_score": fhs_score,
                 "persona": "Standard User",
                 "income_type": "Variable",
                 "language": payload.language or "English",
@@ -138,10 +151,10 @@ async def process_chat_websocket(websocket: WebSocket):
 
 
 @router.websocket("/ws")
-async def chat_websocket_subpath(websocket: WebSocket):
-    await process_chat_websocket(websocket)
+async def chat_websocket_subpath(websocket: WebSocket, db: Session = Depends(get_db)):
+    await process_chat_websocket(websocket, db)
 
 
 @ws_router.websocket("/ws/chat")
-async def chat_websocket_root(websocket: WebSocket):
-    await process_chat_websocket(websocket)
+async def chat_websocket_root(websocket: WebSocket, db: Session = Depends(get_db)):
+    await process_chat_websocket(websocket, db)

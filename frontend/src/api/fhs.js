@@ -4,6 +4,11 @@ export async function calculateFHS(file, currentLiquidBalance = 100000) {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("current_liquid_balance", currentLiquidBalance);
+  
+  const userId = localStorage.getItem("user_id");
+  if (userId) {
+    formData.append("user_id", userId);
+  }
 
   try {
     const response = await client.post("/fhs/calculate", formData, {
