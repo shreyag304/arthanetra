@@ -1,6 +1,31 @@
-import { FiActivity, FiTrendingUp } from "react-icons/fi";
+import { useState, useRef } from "react";
+import { FiActivity, FiTrendingUp, FiUpload } from "react-icons/fi";
+import { calculateFHS } from "../../api/fhs";
 
-function HealthScore({ score = 72 }) {
+function HealthScore({ score = 72, onUpdateScore }) {
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const result = await calculateFHS(file);
+      if (result.final_fhs !== undefined && onUpdateScore) {
+        onUpdateScore(result.final_fhs);
+      }
+    } catch (error) {
+      console.error("Error calculating FHS:", error);
+      alert("Failed to calculate FHS. Make sure it is a valid CSV.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
   const getStatus = (val) => {
     if (val >= 75) return { label: "Excellent", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30", bar: "from-emerald-500 to-teal-400" };
     if (val >= 60) return { label: "Good", color: "text-blue-400 bg-blue-500/10 border-blue-500/30", bar: "from-blue-500 to-indigo-400" };
@@ -24,9 +49,26 @@ function HealthScore({ score = 72 }) {
           </div>
         </div>
 
-        <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${status.color}`}>
-          {status.label}
-        </span>
+        <div className="flex items-center gap-2">
+          <input 
+            type="file" 
+            accept=".csv" 
+            className="hidden" 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            title="Upload Bank Statement (CSV)"
+            className="p-1.5 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 transition-colors"
+          >
+            <FiUpload className={`w-3.5 h-3.5 ${isUploading ? 'animate-pulse' : ''}`} />
+          </button>
+          <span className={`text-xs px-2.5 py-1 rounded-full font-semibold border ${status.color}`}>
+            {status.label}
+          </span>
+        </div>
       </div>
 
       <div className="flex items-baseline justify-between mb-3 mt-1">
