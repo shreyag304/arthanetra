@@ -200,6 +200,7 @@ function Workspace() {
             context={context}
             connectionStatus={connectionStatus}
             onGoalClick={handleSendPrompt}
+            onFhsUpdate={(newScore) => setContext((prev) => ({ ...prev, financial_health_score: newScore }))}
           />
         </div>
       </div>
