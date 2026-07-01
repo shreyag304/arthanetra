@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPhone, FiLock, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
-import { login } from "../../api/auth";
+import { login as apiLogin } from "../../api/auth";
+import { AuthContext } from "../../context/AuthContext";
 import Input from "../shared/Input";
 import Button from "../shared/Button";
 
 export default function LoginForm({ onSwitchToRegister }) {
   const navigate = useNavigate();
+  const { login: authLogin } = useContext(AuthContext);
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,12 +36,13 @@ export default function LoginForm({ onSwitchToRegister }) {
 
     setLoading(true);
     try {
-      const data = await login(mobile, password);
+      const data = await apiLogin(mobile, password);
       setSuccessMsg("Login successful! Redirecting to workspace...");
       if (data) {
         localStorage.setItem("user_id", data.user_id);
         localStorage.setItem("user_name", data.name);
         localStorage.setItem("user_mobile", data.mobile);
+        authLogin(data);
       }
       setTimeout(() => {
         navigate("/workspace");

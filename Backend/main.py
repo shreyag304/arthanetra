@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from routes import auth, chat, fhs
+from routes import auth, chat, fhs , profile 
 from dbmodel.Database import create_db_and_tables
 from dbmodel.models import *
 
@@ -28,4 +28,5 @@ app.include_router(auth.router)
 app.include_router(chat.router)
 app.include_router(chat.ws_router)
 app.include_router(fhs.router)
+app.include_router(profile.router)
 

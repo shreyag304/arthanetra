@@ -4,13 +4,15 @@ import SuggestedPrompts from "../components/chat/SuggestedPrompts";
 import ChatInput from "../components/chat/ChatInput";
 import Logo from "../components/shared/Logo";
 import LanguageSelector from "../components/chat/LanguageSelector";
+import ProfileModal from "../components/context/ProfileModal";
 import { sendMessage, chatSocket } from "../api/chat";
 import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { FiRefreshCw } from "react-icons/fi";
 
 function Workspace() {
-  const { user } = useContext(AuthContext);
+  const { user, refreshProfile } = useContext(AuthContext);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const [messages, setMessages] = useState([
     {
@@ -61,6 +63,34 @@ function Workspace() {
       chatSocket.off("message", handleWsMessage);
     };
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      setContext((prev) => ({
+        ...prev,
+        persona: user.persona || prev.persona,
+        income_type: user.income_type || prev.income_type,
+        goal: user.goal || prev.goal,
+        financial_health_score: user.financial_health_score || prev.financial_health_score,
+      }));
+    } else if (refreshProfile) {
+      refreshProfile();
+    }
+  }, [user, refreshProfile]);
+
+  const userName = user?.name || localStorage.getItem("user_name") || "ArthaNetra User";
+
+  const handleProfileSave = (updatedData) => {
+    setContext((prev) => ({
+      ...prev,
+      persona: updatedData.persona || prev.persona,
+      income_type: updatedData.income_type || prev.income_type,
+      goal: updatedData.goal || prev.goal,
+    }));
+    if (refreshProfile) {
+      refreshProfile(true);
+    }
+  };
 
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
@@ -152,7 +182,19 @@ function Workspace() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* User Profile Trigger Button */}
+          <button
+            onClick={() => setIsProfileModalOpen(true)}
+            title="Edit Profile, Persona & Goal"
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 hover:from-purple-800 hover:to-indigo-800 border border-purple-500/30 hover:border-purple-400 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shadow-sm group"
+          >
+            <span className="w-5 h-5 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-[10px] font-bold shadow-inner group-hover:scale-105 transition-transform">
+              {userName.charAt(0).toUpperCase()}
+            </span>
+            <span className="max-w-[90px] sm:max-w-[130px] truncate">{userName}</span>
+          </button>
+
           <button
             onClick={handleResetSession}
             title="Reset Conversation"
@@ -204,6 +246,17 @@ function Workspace() {
           />
         </div>
       </div>
+
+      {/* Profile Popup Menu / Modal */}
+      {isProfileModalOpen && (
+        <ProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          user={user}
+          context={context}
+          onSave={handleProfileSave}
+        />
+      )}
     </div>
   );
 }

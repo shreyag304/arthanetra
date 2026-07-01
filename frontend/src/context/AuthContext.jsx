@@ -6,7 +6,8 @@ export const AuthContext = createContext();
 function AuthProvider({ children }) {
     const [user, setUser] = useState(() => {
         const storedId = localStorage.getItem("user_id");
-        return storedId ? { id: Number(storedId) } : null;
+        const storedName = localStorage.getItem("user_name");
+        return storedId ? { id: Number(storedId), user_id: Number(storedId), name: storedName || "ArthaNetra User" } : null;
     });
     const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
@@ -16,6 +17,9 @@ function AuthProvider({ children }) {
         setIsLoadingProfile(true);
         try {
             const profileData = await getProfile({ forceRefresh, userId: storedId });
+            if (profileData?.name) {
+                localStorage.setItem("user_name", profileData.name);
+            }
             setUser((prev) => ({ ...prev, ...profileData }));
             return profileData;
         } catch (error) {
@@ -33,10 +37,14 @@ function AuthProvider({ children }) {
     }, [fetchUserProfile]);
 
     const login = (userData) => {
-        setUser(userData);
+        setUser((prev) => ({ ...prev, ...userData }));
         if (userData?.id || userData?.user_id) {
             localStorage.setItem("user_id", userData.id || userData.user_id);
         }
+        if (userData?.name) {
+            localStorage.setItem("user_name", userData.name);
+        }
+        fetchUserProfile(true);
     };
 
     const logout = () => {
