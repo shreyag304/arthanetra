@@ -31,7 +31,7 @@ function SuggestedPrompts({ onPromptClick }) {
   return (
     <div className="border-t border-slate-800/80 bg-slate-900/70 backdrop-blur-md px-6 py-4 transition-all">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
-        <FiSparkles className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
+        <FiZap className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
         <span>Suggested AI Queries</span>
       </div>
 
