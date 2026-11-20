@@ -169,8 +169,8 @@ class ChatWebSocketService {
         this.pendingRequests.set(request_id, { resolve, reject, timer });
         this.ws.send(JSON.stringify(requestData));
       } else {
-        // If WS not open, attempt connection for future requests and fall back to HTTP
-        this.connect();
+        // If WS not open, use HTTP directly (do NOT also trigger WS connect while HTTP is in-flight to avoid double responses)
+        this.connect(); // connect for future requests only
         this.sendHttpFallback(requestData).then(resolve).catch(reject);
       }
     });

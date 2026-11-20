@@ -2,15 +2,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from sqlmodel import Session
 from routes import auth, chat, fhs , profile 
-from dbmodel.Database import create_db_and_tables
+from dbmodel.Database import create_db_and_tables, engine
 from dbmodel.models import *
+from services.seed_schemes import seed_schemes_if_empty
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
+    with Session(engine) as session:
+        seed_schemes_if_empty(session)
     yield
+
 
 
 app = FastAPI(title="ArthaNetra API", lifespan=lifespan)
@@ -29,4 +34,21 @@ app.include_router(chat.router)
 app.include_router(chat.ws_router)
 app.include_router(fhs.router)
 app.include_router(profile.router)
+
+
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "service": "ArthaNetra API",
+        "docs": "http://127.0.0.1:8000/docs",
+        "frontend": "http://localhost:5173"
+    }
+
+
+@app.post("/activity")
+@app.get("/activity")
+def activity_ping():
+    return {"status": "ok"}
+
 

@@ -1,3 +1,9 @@
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+Backend/*.db
+
 # Environments & Secrets
 .venv/
 venv/

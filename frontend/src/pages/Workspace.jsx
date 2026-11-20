@@ -14,13 +14,7 @@ function Workspace() {
   const { user, refreshProfile } = useContext(AuthContext);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "assistant",
-      text: "Namaste! I'm ArthaNetra AI, your multilingual financial companion. How can I assist you with budgets, loans, or government schemes today?",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
 
   const [context, setContext] = useState({
     financial_health_score: 72,
