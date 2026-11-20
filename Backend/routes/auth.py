@@ -18,6 +18,7 @@ class LoginResponse(BaseModel):
     user_id: int
     name: str
     mobile: str
+    email: Optional[str] = None
 
 
 class RegisterRequest(BaseModel):
@@ -32,6 +33,7 @@ class RegisterResponse(BaseModel):
     user_id: int
     name: str
     mobile: str
+    email: Optional[str] = None
 
 
 class CheckRegistrationResponse(BaseModel):
@@ -52,7 +54,11 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     return LoginResponse(
-        message="Login successful", user_id=user.id, name=user.name, mobile=user.mobile
+        message="Login successful",
+        user_id=user.id,
+        name=user.name,
+        mobile=user.mobile,
+        email=user.email,
     )
 
 
@@ -89,6 +95,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         new_user = User(
             name=payload.name or "User",
             mobile=payload.mobile,
+            email=payload.email,
             password=payload.password,
         )
         db.add(new_user)
@@ -99,6 +106,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
             user_id=new_user.id,
             name=new_user.name,
             mobile=new_user.mobile,
+            email=new_user.email,
         )
     except Exception as e:
         db.rollback()

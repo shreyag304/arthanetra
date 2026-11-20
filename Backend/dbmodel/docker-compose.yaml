@@ -8,8 +8,8 @@ services:
     ports:
       - 5434:5432  # make sure you don't have another container running on 5432
 
-    environment:
-      - POSTGRES_DB=chaiDB
+    environment:  
+      - POSTGRES_DB=chaiDB  
       - POSTGRES_USER=chaiaurcode
       - POSTGRES_PASSWORD=chaiaurcode
 
@@ -19,7 +19,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8083:8080
+      - 8082:8080
 
 
 

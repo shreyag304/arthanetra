@@ -1,7 +1,7 @@
 import { useState } from "react";
 import VoiceButton from "./VoiceButton";
 import { sendMessage, chatSocket } from "../../api/chat";
-import { FiSend, FiLoader, FiRadio } from "react-icons/fi";
+import { FiSend, FiLoader } from "react-icons/fi";
 
 function ChatInput({
   setMessages,

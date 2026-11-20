@@ -1,6 +1,9 @@
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from sqlmodel import Session
 from pydantic import BaseModel
+from dbmodel.Database import get_db, engine
+from services.agent_graph import process_agent_message
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 ws_router = APIRouter(tags=["chat-websocket"])
@@ -48,27 +51,22 @@ manager = ConnectionManager()
 
 
 @router.post("", response_model=ChatResponse)
-def handle_chat(payload: ChatRequest):
-    reply_text = f"ArthaNetra AI ({payload.language or 'English'}): I received your message '{payload.message}'."
-    if payload.user_id:
-        reply_text += f" Assisting User ID #{payload.user_id}."
-
-    default_context = {
-        "financial_health_score": 75,
-        "persona": "Standard User",
-        "income_type": "Variable",
-        "language": payload.language or "English",
-        "goal": "Budget Optimization",
-        "eligible_schemes": ["PM Jan Dhan Yojana", "Atal Pension Yojana"],
-    }
+def handle_chat(payload: ChatRequest, db: Session = Depends(get_db)):
+    user_id = payload.user_id or 1
+    result = process_agent_message(
+        session=db,
+        user_id=user_id,
+        message=payload.message,
+        language=payload.language or "English",
+    )
 
     return ChatResponse(
         message="Chat processed successfully",
-        reply=reply_text,
+        reply=result["reply"],
         user_id=payload.user_id,
         conversation_id=payload.conversation_id,
         language=payload.language,
-        context=default_context,
+        context=result["context"],
         request_id=payload.request_id,
     )
 
@@ -92,41 +90,22 @@ async def process_chat_websocket(websocket: WebSocket):
                 )
                 continue
 
-            reply_text = f"ArthaNetra AI ({payload.language or 'English'}): I received your message '{payload.message}'."
-            if payload.user_id:
-                reply_text += f" Assisting User ID #{payload.user_id}."
-
-            msg_lower = payload.message.lower()
-            default_context = {
-                "financial_health_score": 75,
-                "persona": "Standard User",
-                "income_type": "Variable",
-                "language": payload.language or "English",
-                "goal": "Budget Optimization",
-                "eligible_schemes": ["PM Jan Dhan Yojana", "Atal Pension Yojana"],
-            }
-
-            if "loan" in msg_lower or "scam" in msg_lower:
-                reply_text = (
-                    "This loan appears risky. Please verify if the lender is RBI registered before proceeding."
-                )
-            elif "budget" in msg_lower or "save" in msg_lower:
-                reply_text = "Let's create a monthly budget. First, tell me your monthly income."
-            elif "scheme" in msg_lower:
-                reply_text = "Based on your profile, you may be eligible for PM-KISAN and PM Jan Dhan Yojana."
-                default_context["eligible_schemes"] = ["PM-KISAN", "PM Jan Dhan Yojana"]
-            elif "health score" in msg_lower:
-                reply_text = (
-                    "Your Financial Health Score is currently 75. Increasing savings and reducing debt can improve it."
+            with Session(engine) as session:
+                user_id = payload.user_id or 1
+                result = process_agent_message(
+                    session=session,
+                    user_id=user_id,
+                    message=payload.message,
+                    language=payload.language or "English",
                 )
 
             response = ChatResponse(
                 message="Chat processed successfully via WebSocket",
-                reply=reply_text,
+                reply=result["reply"],
                 user_id=payload.user_id,
                 conversation_id=payload.conversation_id,
                 language=payload.language,
-                context=default_context,
+                context=result["context"],
                 request_id=payload.request_id,
             )
 
@@ -145,3 +124,4 @@ async def chat_websocket_subpath(websocket: WebSocket):
 @ws_router.websocket("/ws/chat")
 async def chat_websocket_root(websocket: WebSocket):
     await process_chat_websocket(websocket)
+

@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiUser, FiPhone, FiLock, FiMail, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import { checkRegistration, register } from "../../api/auth";
+import { AuthContext } from "../../context/AuthContext";
 import Input from "../shared/Input";
 import Button from "../shared/Button";
 
 export default function RegisterForm({ onSwitchToLogin }) {
   const navigate = useNavigate();
+  const { login: authLogin } = useContext(AuthContext);
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
@@ -84,6 +86,7 @@ export default function RegisterForm({ onSwitchToLogin }) {
         localStorage.setItem("user_id", data.user_id);
         localStorage.setItem("user_name", data.name);
         localStorage.setItem("user_mobile", data.mobile);
+        authLogin(data);
       }
       setTimeout(() => {
         navigate("/workspace");

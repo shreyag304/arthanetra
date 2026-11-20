@@ -10,14 +10,16 @@ Within the Context Panel sidebar, it provides visual reassurance that user profi
 ### Component Props
 | Prop Name | Type | Required | Default | Description |
 | :--- | :--- | :--- | :--- | :--- |
+| `userName` | `string` | Optional | `undefined` | The user's display name rendered prominently in the card header. |
 | `persona` | `string` | Optional | `"Student"` | The categorical classification assigned to the user profile (e.g., `"Student"`, `"Farmer"`, `"MSME Owner"`). |
 | `incomeType` | `string` | Optional | `"Variable"` | The user's income classification or profile type (e.g., `"Variable"`, `"Salaried"`). |
+| `onEditProfile` | `function` | Optional | `undefined` | Click handler triggered when clicking the card to launch the profile pop-up menu. |
 
 ### Visual Layout Sections
 | Section | Elements Displayed | Styling Theme |
 | :--- | :--- | :--- |
-| **Card Header** | User Check Icon (`FiUserCheck`) and `"Verified"` shield badge (`FiShield`). | Purple & Indigo accent colors. |
-| **Profile Display** | Assigned persona string (`persona`). | Bold white typography (`text-base font-bold`). |
+| **Card Header** | User Avatar circle with initials, user display name (`userName`), Edit icon (`FiEdit3`), and `"Verified"` shield badge (`FiShield`). | Purple & Indigo accent colors with hover glow. |
+| **Profile Display** | Assigned persona string (`persona`). | Bold white typography (`text-sm font-bold`). |
 | **Income Indicator** | Dynamic income type classification (`incomeType`). | Purple highlight (`text-purple-300`). |
 
 ## Architecture & Flow

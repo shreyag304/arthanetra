@@ -12,6 +12,10 @@ This document lists and details all API routes defined in the [`Backend/routes`]
 | `/auth` | `GET` | `/auth/register` | Check registration availability of a mobile number | [`auth.py`](file:///home/abhijay/python/arthanetra/Backend/routes/auth.py#L60-L79) |
 | `/auth` | `POST` | `/auth/register` | Register a new user account | [`auth.py`](file:///home/abhijay/python/arthanetra/Backend/routes/auth.py#L82-L106) |
 | `/chat` | `POST` | `/chat` | Process AI chat conversation & return user context | [`chat.py`](file:///home/abhijay/python/arthanetra/Backend/routes/chat.py#L24-L47) |
+| `/profile` | `GET` | `/profile` | Get current user profile (via query param, auth header, or fallback) | [`profile.py`](file:///home/abhijay/python/arthanetra/Backend/routes/profile.py#L57-L81) |
+| `/profile` | `GET` | `/profile/{user_id}` | Get user profile by explicit ID | [`profile.py`](file:///home/abhijay/python/arthanetra/Backend/routes/profile.py#L84-L89) |
+| `/profile` | `PUT` | `/profile` | Update current user profile | [`profile.py`](file:///home/abhijay/python/arthanetra/Backend/routes/profile.py#L92-L139) |
+| `/profile` | `PUT` | `/profile/{user_id}` | Update user profile by explicit ID | [`profile.py`](file:///home/abhijay/python/arthanetra/Backend/routes/profile.py#L142-L172) |
 
 ---
 
@@ -161,3 +165,58 @@ Handles user interactions with ArthaNetra AI, providing localized replies and co
 
 - **Error Responses:**
   - `422 Unprocessable Entity`: Request body validation failure.
+
+---
+
+### 3. Profile Routes (`/profile`)
+
+Defined in [`Backend/routes/profile.py`](file:///home/abhijay/python/arthanetra/Backend/routes/profile.py). For full architectural details and Mermaid diagrams, see [`documentation/routes/profile.md`](file:///home/abhijay/python/arthanetra/Backend/documentation/routes/profile.md).
+
+#### `GET /profile` and `GET /profile/{user_id}`
+Retrieves user profile metadata and conversational context.
+
+- **Query / Path Parameters:**
+  - `user_id` (*integer*, optional on `/profile`, required on `/profile/{user_id}`): Target user ID.
+
+- **Success Response (`200 OK` - `ProfileResponse`):**
+  ```json
+  {
+    "user_id": 1,
+    "id": 1,
+    "name": "John Doe",
+    "mobile": "9876543210",
+    "email": "john@example.com",
+    "created_at": "2026-07-01T04:17:02.329005",
+    "language": "English",
+    "financial_health_score": 75,
+    "persona": "Standard User",
+    "income_type": "Variable",
+    "goal": "Budget Optimization"
+  }
+  ```
+
+- **Error Responses:**
+  - `404 Not Found`: `{ "detail": "User not found" }`
+
+---
+
+#### `PUT /profile` and `PUT /profile/{user_id}`
+Updates account attributes and custom preferences.
+
+- **Request Body (`ProfileUpdateRequest`):**
+  ```json
+  {
+    "name": "Jane Doe",
+    "mobile": "9876543210",
+    "goal": "Retirement Planning"
+  }
+  ```
+
+- **Success Response (`200 OK` - `ProfileResponse`):**
+  Returns updated user profile JSON payload.
+
+- **Error Responses:**
+  - `400 Bad Request`: `{ "detail": "Mobile number already registered" }`
+  - `404 Not Found`: `{ "detail": "User not found" }`
+  - `500 Internal Server Error`: `{ "detail": "Failed to update user profile" }`
+
